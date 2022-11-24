@@ -16,8 +16,11 @@ class AssignsController < ApplicationController
 
   def destroy
     assign = Assign.find(params[:id])
+    unless (current_user == assign.team.owner) || (current_user == assign.user)
+      redirect_to team_url(params[:team_id]), notice: "リーダーか本人以外は削除不可"
+      return
+    end
     destroy_message = assign_destroy(assign, assign.user)
-
     redirect_to team_url(params[:team_id]), notice: destroy_message
   end
 
@@ -27,7 +30,7 @@ class AssignsController < ApplicationController
   end
 
   def assign_destroy(assign, assigned_user)
-    if assigned_user == assign.team.owner
+    if assigned_user == assign.team.owner # 削除対象ユーザがチームオーナーである場合
       I18n.t('views.messages.cannot_delete_the_leader')
     elsif Assign.where(user_id: assigned_user.id).count == 1
       I18n.t('views.messages.cannot_delete_only_a_member')
@@ -38,6 +41,22 @@ class AssignsController < ApplicationController
       I18n.t('views.messages.cannot_delete_member_4_some_reason')
     end
   end
+
+    # elsif current_user != assign.team.owner # ログインユーザがチームオーナーではない場合
+    #   if current_user == assign.team.owner # ログインユーザがチームオーナーの場合
+    #     assign.destroy
+    #     set_next_team(assign, assigned_user)
+    #     I18n.t('views.messages.delete_member')
+    #   else
+    #   I18n.t('views.messages.cannot_delete_member_4_some_reason')
+    #   end
+    # elsif assign.destroy
+    #   set_next_team(assign, assigned_user)
+    #   I18n.t('views.messages.delete_member')
+    # else
+    #   I18n.t('views.messages.cannot_delete_member_4_some_reason')
+    # end  
+  # end
 
   def email_exist?
     team = find_team(params[:team_id])

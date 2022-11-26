@@ -37,13 +37,18 @@
               <h5><%= I18n.t('views.messages.team_members2') %></h5>
               <table class="table">
                 <tbody>
-                  <% @team.assigns.each do |assign| %>
-                    <tr>
-                      <td><%= image_tag 'default.jpg', size: '40x40' %></td>
-                      <td><%= assign.user.email %></td>
+                <% @team.assigns.each do |assign| %>
+                  <tr>
+                    <td><%= image_tag 'default.jpg', size: '40x40' %></td>
+                    <td><%= assign.user.email %></td>
+                    <% if (current_user.id == assign.team.owner.id ) || ( current_user.id == assign.user.id ) %>
                       <td><%= link_to I18n.t('views.button.delete'), team_assign_path(@team, assign), method: :delete, class: 'btn btn-sm btn-danger' %></td>
-                    </tr>
-                  <% end %>
+                    <% end %>
+                    <% if current_user == assign.team.owner %>
+                      <td><%= link_to 'Transfer authority', assign_owner_team_path(owner_id: assign.user_id), method: :post, class: 'btn btn-sm btn-success' %></td>
+                    <% end %>
+                  </tr>
+                <% end %>
                 </tbody>
               </table>
             </div>

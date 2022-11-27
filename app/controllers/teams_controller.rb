@@ -45,6 +45,7 @@ class TeamsController < ApplicationController
 
   def dashboard
     @team = current_user.keep_team_id ? Team.find(current_user.keep_team_id) : current_user.teams.first
+    # binding.irb
   end
 
   private
